@@ -2,6 +2,15 @@
 
 Repo kỹ năng dùng chung cho các IDE/agent của anh Jason.
 
+## Cài đặt (CLI)
+```
+# init project (tạo skills/docs/examples + README/VERSION/CHANGELOG)
+npx @truongnq-ai/global-skill init
+
+# cài vào project hiện tại
+npx @truongnq-ai/global-skill install
+```
+
 ## FSM BẮT BUỘC KHI CODING (TÓM TẮT)
 1) Xác định yêu cầu
 2) Tìm hiểu yêu cầu

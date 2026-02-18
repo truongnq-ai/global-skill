@@ -4,3 +4,4 @@
 - Init repo structure
 - Add FSM docs
 - Add skill templates
+- Add CLI (npx @truongnq-ai/global-skill)
