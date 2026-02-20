@@ -1,7 +1,7 @@
 {
   "name": "@truongnq-ai/global-skill",
-  "version": "2026.02.18",
-  "description": "Global skills kit for AI IDE/agents",
+  "version": "2026.02.20",
+  "description": "Global skills kit for AI IDE/agents — workflow rules, FSM, safety guards",
   "bin": {
     "global-skill": "bin/cli.js"
   },
@@ -18,5 +18,12 @@
   "engines": {
     "node": ">=18"
   },
+  "keywords": [
+    "ai-agent",
+    "skill",
+    "coding-rules",
+    "fsm",
+    "antigravity"
+  ],
   "license": "MIT"
 }

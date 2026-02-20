@@ -1,30 +1,34 @@
 # global-skill
 
-Repo kỹ năng dùng chung cho các IDE/agent của anh Jason.
+Repo kỹ năng dùng chung cho tất cả AI agent / IDE trên mọi thiết bị và dự án.
+
+## Triết lý
+
+**Global Skill = Phong cách & Nguyên tắc làm việc** (không gắn với tech stack cụ thể)
+- Cách làm việc, cách ra quyết định, safety rules
+- Áp dụng mọi project, mọi ngôn ngữ, mọi framework
+
+**Project Skill = Kỹ thuật & Context Cụ Thể** (tạo riêng cho từng project)
+- Tech stack, project structure, business rules
+
+## ⚠️ Auto-Accept Mode
+
+Owner cho phép Auto-Accept mode. Mọi AI agent khi dùng bộ skill này phải:
+- **Dừng hỏi A/B/C** khi gặp điểm mơ hồ — xem `skills/clarification/`
+- **Khai báo scope** trước khi sửa file — xem `skills/file-safety/`
+- **Không auto-run** các lệnh destructive
 
 ## Cài đặt (CLI)
+```bash
+npx @truongnq-ai/global-skill init     # scaffold trong project mới
+npx @truongnq-ai/global-skill install  # copy vào project hiện tại
 ```
-# init project (tạo skills/docs/examples + README/VERSION/CHANGELOG)
-npx @truongnq-ai/global-skill init
-
-# cài vào project hiện tại
-npx @truongnq-ai/global-skill install
-```
-
-## FSM BẮT BUỘC KHI CODING (TÓM TẮT)
-1) Xác định yêu cầu
-2) Tìm hiểu yêu cầu
-3) Phân tích yêu cầu
-4) Lập kế hoạch
-5) Gặp điểm mơ hồ → dừng lại hỏi anh theo dạng trắc nghiệm A/B/C (kèm phân tích ưu/nhược/khuyến nghị)
-6) Anh quyết định cuối trước khi thực thi
-
-> Chi tiết xem: `docs/fsm.md`
 
 ## Cấu trúc
-- `skills/` — các skill nhỏ, tách biệt
-- `docs/` — quy ước & FSM
-- `examples/` — snippet mẫu
+- `skills/` — các skill độc lập, đọc SKILL.md để biết cách áp dụng
+- `docs/` — FSM, conventions, quickstart
+- `examples/` — prompt mẫu, use cases
 
-## Versioning
-- Date-based: `YYYY.MM.DD`
+> Đọc `docs/overview.md` để hiểu đầy đủ triết lý và danh sách skill.
+
+## Versioning: Date-based `YYYY.MM.DD`

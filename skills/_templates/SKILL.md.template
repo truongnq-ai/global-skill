@@ -1,19 +1,57 @@
 ---
 name: <ten-skill>
-description: "<mô tả ngắn>"
+description: "<mô tả ngắn — 1 dòng, rõ mục tiêu>"
 ---
 
 # <Tên Skill>
 
+> **Áp dụng cho:** <mọi project / project cụ thể>  
+> **Skill liên quan:** `skills/<skill-khac>/` (nếu có)
+
 ## Mục tiêu
-- <mục tiêu 1>
+- <mục tiêu 1 — cụ thể, có thể đo lường>
 - <mục tiêu 2>
 
-## Quy trình
-1) ...
-2) ...
+---
 
-## Ví dụ
+## Quy trình / FSM
+
 ```
-# ví dụ lệnh / flow
+[Bước 1 — Tên bước]
+        ↓
+[Bước 2 — Tên bước]
+        ↓
+[Gặp điểm mơ hồ?] ──YES──→ [CLARIFICATION] ──→ [Chờ owner]
+        │ NO
+        ↓
+[Bước 3 — Thực thi]
+        ↓
+[Bước 4 — Báo cáo]
+```
+
+---
+
+## Quy tắc bắt buộc
+
+1. <Quy tắc 1 — rõ ràng, actionable>
+2. <Quy tắc 2>
+
+**Nghiêm cấm:**
+- ❌ <Hành vi không được làm>
+- ❌ <Hành vi không được làm>
+
+---
+
+## Ví dụ thực tế
+
+### ✅ Đúng
+
+```
+<ví dụ cho thấy agent làm đúng>
+```
+
+### ❌ Sai
+
+```
+<ví dụ cho thấy agent làm sai — và tại sao sai>
 ```
