@@ -23,9 +23,18 @@ const getFlagValue = (name) => {
 
 const dryRun = hasFlag('dry-run');
 const targetOverride = getFlagValue('target');
+const onlyFilter = getFlagValue('only');
 
 // Default: skills → .agent/skills/, docs + examples → root
 const DEFAULT_SKILL_TARGET = path.join('.agent', 'skills');
+
+// All available skill names (from source)
+const getAvailableSkills = () => {
+  const skillsSrc = path.join(pkgRoot, 'skills');
+  return fs.readdirSync(skillsSrc, { withFileTypes: true })
+    .filter(e => e.isDirectory() && e.name !== '_templates')
+    .map(e => e.name);
+};
 
 const help = () => {
   console.log(`
@@ -37,35 +46,25 @@ Usage:
   global-skill install [options]    Copy và overwrite toàn bộ bộ skill vào project hiện tại
                                     (dùng khi cần cập nhật lên phiên bản mới)
   global-skill update [options]     Alias cho install
+  global-skill diff                 So sánh file đã install với phiên bản mới nhất
   global-skill --version            Xem phiên bản
   global-skill help                 Hiển thị trợ giúp này
 
 Options:
   --target <path>     Thư mục đích cho skills (mặc định: ${DEFAULT_SKILL_TARGET})
   --dry-run           Chỉ hiển thị danh sách file sẽ được tạo/ghi, không thực thi
+  --only <skills>     Chỉ install các skill được chỉ định (cách nhau bởi dấu phẩy)
+                      VD: --only coding,github,ops
 
 Output structure:
   your-project/
   ├── ${DEFAULT_SKILL_TARGET}/    ← skills cho AI agent (auto-detected bởi IDE)
   ├── docs/                       ← documentation cho owner
   └── examples/                   ← prompt mẫu cho owner
-`);
-};
 
-/**
- * Count files in a directory recursively.
- */
-const countFiles = (dir) => {
-  if (!fs.existsSync(dir)) return 0;
-  let count = 0;
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.isDirectory()) {
-      count += countFiles(path.join(dir, entry.name));
-    } else {
-      count++;
-    }
-  }
-  return count;
+Available skills:
+  ${getAvailableSkills().join(', ')}
+`);
 };
 
 /**
@@ -91,9 +90,10 @@ const listFiles = (dir, base = dir) => {
  * @param {string} dest - destination directory
  * @param {boolean} overwrite - true: ghi đè file đã tồn tại, false: bỏ qua
  * @param {boolean} isDryRun - true: chỉ in, không copy
+ * @param {string[]|null} filterDirs - nếu có, chỉ copy các subdirectory trong danh sách
  * @returns {{ created: number, skipped: number, overwritten: number }}
  */
-const copyDir = (src, dest, overwrite, isDryRun = false) => {
+const copyDir = (src, dest, overwrite, isDryRun = false, filterDirs = null) => {
   const stats = { created: 0, skipped: 0, overwritten: 0 };
 
   if (!isDryRun && !fs.existsSync(dest)) {
@@ -105,11 +105,18 @@ const copyDir = (src, dest, overwrite, isDryRun = false) => {
     const d = path.join(dest, entry.name);
 
     if (entry.isDirectory()) {
-      const sub = copyDir(s, d, overwrite, isDryRun);
+      // Apply filter only at top level
+      if (filterDirs && !filterDirs.includes(entry.name)) {
+        continue;
+      }
+      const sub = copyDir(s, d, overwrite, isDryRun, null); // no filter for subdirs
       stats.created += sub.created;
       stats.skipped += sub.skipped;
       stats.overwritten += sub.overwritten;
     } else {
+      // If filterDirs is set, skip top-level files (only copy directories)
+      if (filterDirs) continue;
+
       const exists = fs.existsSync(d);
       if (!overwrite && exists) {
         if (isDryRun) console.log(`  [SKIP]      ${d}`);
@@ -121,7 +128,7 @@ const copyDir = (src, dest, overwrite, isDryRun = false) => {
         const action = exists ? '[OVERWRITE]' : '[CREATE]   ';
         console.log(`  ${action} ${d}`);
       } else {
-        if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+        if (!fs.existsSync(path.dirname(d))) fs.mkdirSync(path.dirname(d), { recursive: true });
         fs.copyFileSync(s, d);
       }
 
@@ -144,6 +151,57 @@ const printSummary = (label, stats) => {
   console.log(`  ${label}: ${parts.join(', ') || 'no changes'}`);
 };
 
+/**
+ * Compare two files and return diff status.
+ */
+const compareFiles = (srcFile, destFile) => {
+  if (!fs.existsSync(destFile)) return 'MISSING';
+  const srcContent = fs.readFileSync(srcFile, 'utf8');
+  const destContent = fs.readFileSync(destFile, 'utf8');
+  return srcContent === destContent ? 'OK' : 'CHANGED';
+};
+
+/**
+ * Compare source directory with installed directory.
+ * Returns { ok, changed, missing } arrays of relative paths.
+ */
+const diffDir = (srcDir, destDir, base = srcDir) => {
+  const result = { ok: [], changed: [], missing: [] };
+  if (!fs.existsSync(srcDir)) return result;
+
+  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    const s = path.join(srcDir, entry.name);
+    const d = path.join(destDir, entry.name);
+
+    if (entry.isDirectory()) {
+      const sub = diffDir(s, d, base);
+      result.ok.push(...sub.ok);
+      result.changed.push(...sub.changed);
+      result.missing.push(...sub.missing);
+    } else {
+      const rel = path.relative(base, s);
+      const status = compareFiles(s, d);
+      if (status === 'OK') result.ok.push(rel);
+      else if (status === 'CHANGED') result.changed.push(rel);
+      else result.missing.push(rel);
+    }
+  }
+
+  return result;
+};
+
+/**
+ * Validate that --only skills exist in source.
+ * Returns { valid: string[], invalid: string[] }
+ */
+const validateOnlyFilter = (onlyStr) => {
+  const requested = onlyStr.split(',').map(s => s.trim()).filter(Boolean);
+  const available = getAvailableSkills();
+  const valid = requested.filter(s => available.includes(s));
+  const invalid = requested.filter(s => !available.includes(s));
+  return { valid, invalid };
+};
+
 const run = () => {
   const cwd = process.cwd();
 
@@ -157,16 +215,105 @@ const run = () => {
     return help();
   }
 
+  // --- diff command ---
+  if (cmd === 'diff') {
+    const skillTarget = targetOverride || DEFAULT_SKILL_TARGET;
+    const skillDest = path.join(cwd, skillTarget);
+
+    console.log(`\nglobal-skill diff v${VERSION}\n`);
+
+    // Check if skills are installed
+    if (!fs.existsSync(skillDest) && !fs.existsSync(path.join(cwd, 'docs'))) {
+      console.log('No global-skill installation found in this project.');
+      console.log(`Expected skills at: ${skillTarget}/`);
+      console.log('Run "global-skill init" to install.\n');
+      return;
+    }
+
+    let totalChanged = 0;
+    let totalMissing = 0;
+    let totalOk = 0;
+
+    // Diff skills
+    console.log(`Skills (${skillTarget}/):`);
+    const skillDiff = diffDir(path.join(pkgRoot, 'skills'), skillDest);
+    for (const f of skillDiff.missing) console.log(`  [MISSING]  ${f}`);
+    for (const f of skillDiff.changed) console.log(`  [CHANGED]  ${f}`);
+    if (skillDiff.missing.length === 0 && skillDiff.changed.length === 0) {
+      console.log('  All files up-to-date ✓');
+    }
+    totalChanged += skillDiff.changed.length;
+    totalMissing += skillDiff.missing.length;
+    totalOk += skillDiff.ok.length;
+
+    // Diff docs
+    console.log(`\nDocs (docs/):`);
+    const docDiff = diffDir(path.join(pkgRoot, 'docs'), path.join(cwd, 'docs'));
+    for (const f of docDiff.missing) console.log(`  [MISSING]  ${f}`);
+    for (const f of docDiff.changed) console.log(`  [CHANGED]  ${f}`);
+    if (docDiff.missing.length === 0 && docDiff.changed.length === 0) {
+      console.log('  All files up-to-date ✓');
+    }
+    totalChanged += docDiff.changed.length;
+    totalMissing += docDiff.missing.length;
+    totalOk += docDiff.ok.length;
+
+    // Diff examples
+    console.log(`\nExamples (examples/):`);
+    const exDiff = diffDir(path.join(pkgRoot, 'examples'), path.join(cwd, 'examples'));
+    for (const f of exDiff.missing) console.log(`  [MISSING]  ${f}`);
+    for (const f of exDiff.changed) console.log(`  [CHANGED]  ${f}`);
+    if (exDiff.missing.length === 0 && exDiff.changed.length === 0) {
+      console.log('  All files up-to-date ✓');
+    }
+    totalChanged += exDiff.changed.length;
+    totalMissing += exDiff.missing.length;
+    totalOk += exDiff.ok.length;
+
+    // Summary
+    console.log(`\nSummary: ${totalOk} up-to-date, ${totalChanged} changed, ${totalMissing} missing`);
+    if (totalChanged > 0 || totalMissing > 0) {
+      console.log('Run "global-skill install" to update to latest version.\n');
+    } else {
+      console.log('Everything is up-to-date! ✓\n');
+    }
+
+    return;
+  }
+
+  // --- init / install / update ---
   if (cmd === 'init' || cmd === 'install' || cmd === 'update') {
     const overwrite = cmd === 'install' || cmd === 'update';
     const skillTarget = targetOverride || DEFAULT_SKILL_TARGET;
     const skillDest = path.join(cwd, skillTarget);
     const action = overwrite ? 'install' : 'init';
 
+    // Validate --only filter
+    let skillFilter = null;
+    if (onlyFilter) {
+      const { valid, invalid } = validateOnlyFilter(onlyFilter);
+      if (invalid.length > 0) {
+        console.error(`\nError: Unknown skill(s): ${invalid.join(', ')}`);
+        console.error(`Available skills: ${getAvailableSkills().join(', ')}`);
+        console.error('');
+        process.exit(1);
+      }
+      if (valid.length === 0) {
+        console.error('\nError: No valid skills specified in --only');
+        process.exit(1);
+      }
+      // Always include _templates when using --only
+      skillFilter = [...valid, '_templates'];
+    }
+
     if (dryRun) {
       console.log(`\n[DRY RUN] global-skill ${action} (no files will be modified)\n`);
     } else {
       console.log(`\nglobal-skill ${action} v${VERSION}\n`);
+    }
+
+    if (onlyFilter) {
+      console.log(`Selective install: ${skillFilter.filter(s => s !== '_templates').join(', ')}\n`);
     }
 
     // Skills → .agent/skills/ (or custom target)
@@ -175,29 +322,33 @@ const run = () => {
       path.join(pkgRoot, 'skills'),
       skillDest,
       overwrite,
-      dryRun
+      dryRun,
+      skillFilter
     );
     if (!dryRun) printSummary('skills', skillStats);
 
-    // Docs → docs/ (root)
-    console.log(`Docs   → docs/`);
-    const docStats = copyDir(
-      path.join(pkgRoot, 'docs'),
-      path.join(cwd, 'docs'),
-      overwrite,
-      dryRun
-    );
-    if (!dryRun) printSummary('docs', docStats);
+    // Docs + Examples: skip if --only is set (only updating specific skills)
+    if (!onlyFilter) {
+      // Docs → docs/ (root)
+      console.log(`Docs   → docs/`);
+      const docStats = copyDir(
+        path.join(pkgRoot, 'docs'),
+        path.join(cwd, 'docs'),
+        overwrite,
+        dryRun
+      );
+      if (!dryRun) printSummary('docs', docStats);
 
-    // Examples → examples/ (root)
-    console.log(`Examples → examples/`);
-    const exStats = copyDir(
-      path.join(pkgRoot, 'examples'),
-      path.join(cwd, 'examples'),
-      overwrite,
-      dryRun
-    );
-    if (!dryRun) printSummary('examples', exStats);
+      // Examples → examples/ (root)
+      console.log(`Examples → examples/`);
+      const exStats = copyDir(
+        path.join(pkgRoot, 'examples'),
+        path.join(cwd, 'examples'),
+        overwrite,
+        dryRun
+      );
+      if (!dryRun) printSummary('examples', exStats);
+    }
 
     console.log('');
 

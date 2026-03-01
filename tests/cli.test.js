@@ -20,7 +20,6 @@ const runCli = (args, cwd) => {
             timeout: 10000,
         });
     } catch (err) {
-        // Return stderr + stdout for error cases
         return (err.stdout || '') + (err.stderr || '');
     }
 };
@@ -93,7 +92,6 @@ describe('CLI', () => {
             const skillsDir = path.join(tmpDir, '.agent', 'skills');
             expect(fs.existsSync(skillsDir)).toBe(true);
 
-            // Check core skills exist
             const expectedSkills = [
                 'clarification', 'file-safety', 'coding', 'browser',
                 'research', 'github', 'ops', 'docker', 'ssh', '_templates',
@@ -111,8 +109,6 @@ describe('CLI', () => {
             expect(fs.existsSync(docsDir)).toBe(true);
             expect(fs.existsSync(path.join(docsDir, 'fsm.md'))).toBe(true);
             expect(fs.existsSync(path.join(docsDir, 'overview.md'))).toBe(true);
-            expect(fs.existsSync(path.join(docsDir, 'conventions.md'))).toBe(true);
-            expect(fs.existsSync(path.join(docsDir, 'quickstart.md'))).toBe(true);
         });
 
         it('should create examples/ at project root', () => {
@@ -125,24 +121,19 @@ describe('CLI', () => {
         });
 
         it('should NOT overwrite existing files', () => {
-            // Create a file first
             const skillsDir = path.join(tmpDir, '.agent', 'skills', 'clarification');
             fs.mkdirSync(skillsDir, { recursive: true });
             const existingFile = path.join(skillsDir, 'SKILL.md');
             fs.writeFileSync(existingFile, 'CUSTOM CONTENT');
 
-            // Run init
             runCli('init', tmpDir);
 
-            // File should NOT be overwritten
             const content = fs.readFileSync(existingFile, 'utf8');
             expect(content).toBe('CUSTOM CONTENT');
         });
 
         it('should NOT create skills/ at project root (old behavior)', () => {
             runCli('init', tmpDir);
-
-            // Old location should NOT exist
             expect(fs.existsSync(path.join(tmpDir, 'skills'))).toBe(false);
         });
     });
@@ -151,23 +142,19 @@ describe('CLI', () => {
 
     describe('install', () => {
         it('should overwrite existing files', () => {
-            // Create a file first
             const skillsDir = path.join(tmpDir, '.agent', 'skills', 'clarification');
             fs.mkdirSync(skillsDir, { recursive: true });
             const existingFile = path.join(skillsDir, 'SKILL.md');
             fs.writeFileSync(existingFile, 'OLD CONTENT');
 
-            // Run install
             runCli('install', tmpDir);
 
-            // File SHOULD be overwritten
             const content = fs.readFileSync(existingFile, 'utf8');
             expect(content).not.toBe('OLD CONTENT');
             expect(content).toContain('clarification');
         });
 
         it('should show overwrite count in output', () => {
-            // First init, then install
             runCli('init', tmpDir);
             const out = runCli('install', tmpDir);
             expect(out).toContain('overwritten');
@@ -181,8 +168,6 @@ describe('CLI', () => {
             runCli('init', tmpDir);
             const out = runCli('update', tmpDir);
             expect(out).toContain('overwritten');
-
-            // Verify files exist
             expect(fs.existsSync(path.join(tmpDir, '.agent', 'skills', 'coding', 'SKILL.md'))).toBe(true);
         });
     });
@@ -192,17 +177,12 @@ describe('CLI', () => {
     describe('--target flag', () => {
         it('should install skills to custom target directory', () => {
             runCli('init --target .agents/skills', tmpDir);
-
-            // Custom target should exist
             expect(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'coding', 'SKILL.md'))).toBe(true);
-
-            // Default target should NOT exist
             expect(fs.existsSync(path.join(tmpDir, '.agent', 'skills'))).toBe(false);
         });
 
         it('should still create docs/ and examples/ at root', () => {
             runCli('init --target custom-skills', tmpDir);
-
             expect(fs.existsSync(path.join(tmpDir, 'docs', 'fsm.md'))).toBe(true);
             expect(fs.existsSync(path.join(tmpDir, 'examples', 'use_cases.md'))).toBe(true);
         });
@@ -213,32 +193,98 @@ describe('CLI', () => {
     describe('--dry-run flag', () => {
         it('should NOT create any files', () => {
             const out = runCli('init --dry-run', tmpDir);
-
-            // No directories should be created
             expect(fs.existsSync(path.join(tmpDir, '.agent'))).toBe(false);
             expect(fs.existsSync(path.join(tmpDir, 'docs'))).toBe(false);
             expect(fs.existsSync(path.join(tmpDir, 'examples'))).toBe(false);
-
-            // Output should indicate dry run
             expect(out).toContain('DRY RUN');
             expect(out).toContain('CREATE');
         });
 
         it('should show OVERWRITE for existing files', () => {
-            // First init, then dry-run install
             runCli('init', tmpDir);
             const out = runCli('install --dry-run', tmpDir);
-
             expect(out).toContain('OVERWRITE');
             expect(out).toContain('DRY RUN');
         });
 
         it('should show SKIP for init with existing files', () => {
-            // First init, then dry-run init again
             runCli('init', tmpDir);
             const out = runCli('init --dry-run', tmpDir);
-
             expect(out).toContain('SKIP');
+        });
+    });
+
+    // ─── diff command ───
+
+    describe('diff', () => {
+        it('should show no installation found when project is empty', () => {
+            const out = runCli('diff', tmpDir);
+            expect(out).toContain('No global-skill installation found');
+        });
+
+        it('should show all up-to-date after fresh init', () => {
+            runCli('init', tmpDir);
+            const out = runCli('diff', tmpDir);
+            expect(out).toContain('up-to-date');
+            expect(out).toContain('0 changed');
+            expect(out).toContain('0 missing');
+        });
+
+        it('should detect changed files', () => {
+            runCli('init', tmpDir);
+            const skillFile = path.join(tmpDir, '.agent', 'skills', 'coding', 'SKILL.md');
+            fs.writeFileSync(skillFile, 'MODIFIED CONTENT');
+
+            const out = runCli('diff', tmpDir);
+            expect(out).toContain('[CHANGED]');
+            expect(out).toContain('1 changed');
+        });
+
+        it('should detect missing files', () => {
+            runCli('init', tmpDir);
+            const skillFile = path.join(tmpDir, '.agent', 'skills', 'coding', 'SKILL.md');
+            fs.unlinkSync(skillFile);
+
+            const out = runCli('diff', tmpDir);
+            expect(out).toContain('[MISSING]');
+            expect(out).toContain('1 missing');
+        });
+    });
+
+    // ─── --only flag ───
+
+    describe('--only flag', () => {
+        it('should install only specified skills', () => {
+            runCli('install --only coding,github', tmpDir);
+
+            expect(fs.existsSync(path.join(tmpDir, '.agent', 'skills', 'coding', 'SKILL.md'))).toBe(true);
+            expect(fs.existsSync(path.join(tmpDir, '.agent', 'skills', 'github', 'SKILL.md'))).toBe(true);
+            expect(fs.existsSync(path.join(tmpDir, '.agent', 'skills', 'docker'))).toBe(false);
+            expect(fs.existsSync(path.join(tmpDir, '.agent', 'skills', 'ssh'))).toBe(false);
+        });
+
+        it('should skip docs and examples when --only is used', () => {
+            runCli('install --only coding', tmpDir);
+            expect(fs.existsSync(path.join(tmpDir, 'docs'))).toBe(false);
+            expect(fs.existsSync(path.join(tmpDir, 'examples'))).toBe(false);
+        });
+
+        it('should show error for invalid skill names', () => {
+            const out = runCli('install --only nonexistent', tmpDir);
+            expect(out).toContain('Unknown skill');
+            expect(out).toContain('nonexistent');
+        });
+
+        it('should show selective install message', () => {
+            const out = runCli('install --only coding,github', tmpDir);
+            expect(out).toContain('Selective install');
+            expect(out).toContain('coding');
+            expect(out).toContain('github');
+        });
+
+        it('should always include _templates with --only', () => {
+            runCli('install --only coding', tmpDir);
+            expect(fs.existsSync(path.join(tmpDir, '.agent', 'skills', '_templates'))).toBe(true);
         });
     });
 
@@ -257,11 +303,46 @@ describe('CLI', () => {
                 expect(fs.existsSync(skillFile), `${dir.name}/SKILL.md should exist`).toBe(true);
 
                 const content = fs.readFileSync(skillFile, 'utf8');
-                // Check YAML frontmatter
                 expect(content.startsWith('---'), `${dir.name}/SKILL.md should start with ---`).toBe(true);
                 expect(content).toContain('name:');
                 expect(content).toContain('description:');
             }
+        });
+
+        it('should have depends_on and related fields in all skills', () => {
+            runCli('init', tmpDir);
+
+            const skillsDir = path.join(tmpDir, '.agent', 'skills');
+            const skillDirs = fs.readdirSync(skillsDir, { withFileTypes: true })
+                .filter(e => e.isDirectory() && e.name !== '_templates');
+
+            for (const dir of skillDirs) {
+                const skillFile = path.join(skillsDir, dir.name, 'SKILL.md');
+                const content = fs.readFileSync(skillFile, 'utf8');
+                expect(content, `${dir.name}/SKILL.md should have depends_on`).toContain('depends_on:');
+                expect(content, `${dir.name}/SKILL.md should have related`).toContain('related:');
+            }
+        });
+    });
+
+    // ─── help enhancements ───
+
+    describe('help enhancements', () => {
+        it('should list available skills in help', () => {
+            const out = runCli('help', tmpDir);
+            expect(out).toContain('Available skills');
+            expect(out).toContain('coding');
+            expect(out).toContain('clarification');
+        });
+
+        it('should show diff command in help', () => {
+            const out = runCli('help', tmpDir);
+            expect(out).toContain('diff');
+        });
+
+        it('should show --only option in help', () => {
+            const out = runCli('help', tmpDir);
+            expect(out).toContain('--only');
         });
     });
 

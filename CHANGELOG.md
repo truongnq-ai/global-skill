@@ -23,8 +23,12 @@
   - `init` → tạo `.agent/skills/`, `docs/`, `examples/` (chỉ file chưa tồn tại)
   - `install` → overwrite toàn bộ lên version mới
   - Thêm `update` command (alias cho `install`)
+  - Thêm `diff` command: so sánh installed vs source (MISSING/CHANGED/OK)
   - Thêm `--target <path>` flag: đổi thư mục đích cho skills
   - Thêm `--dry-run` flag: preview file sẽ thay đổi
+  - Thêm `--only <skills>` flag: selective install (VD: `--only coding,github`)
+  - Validate skill names — báo lỗi nếu skill không tồn tại
+  - Help cải thiện: liệt kê available skills
   - Output rõ ràng: số file created/overwritten/skipped
 
 ### Docs
