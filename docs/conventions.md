@@ -3,8 +3,8 @@
 ## Nguyên tắc cốt lõi
 
 1. **Phân tích trước, thực thi sau** — không bao giờ làm tắt
-2. **Khai báo scope trước khi ghi file** — xem `skills/file-safety/SKILL.md`
-3. **Dừng hỏi A/B/C khi mơ hồ** — xem `skills/clarification/SKILL.md`
+2. **Khai báo scope trước khi ghi file** — xem `.agent/skills/file-safety/SKILL.md`
+3. **Dừng hỏi A/B/C khi mơ hồ** — xem `.agent/skills/clarification/SKILL.md`
 4. **Không tạo `.md` tự động** trừ khi được yêu cầu rõ ràng
 5. **Không commit secrets** vào repo bất kỳ
 

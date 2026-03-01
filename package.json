@@ -1,9 +1,13 @@
 {
   "name": "@truongnq-ai/global-skill",
-  "version": "2026.02.20",
+  "version": "2026.03.01",
   "description": "Global skills kit for AI IDE/agents — workflow rules, FSM, safety guards",
   "bin": {
     "global-skill": "bin/cli.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "type": "module",
   "files": [
@@ -25,5 +29,8 @@
     "fsm",
     "antigravity"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^3.0.0"
+  }
 }

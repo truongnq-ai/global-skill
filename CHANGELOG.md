@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026.03.01 — CLI Restructure & Quality Upgrade
+
+### Breaking Changes
+- **CLI target directory thay đổi**: Skills giờ được install vào `.agent/skills/` thay vì `skills/` ở root
+  - Đúng convention AI IDE (Antigravity, Gemini Code Assist, agentskills.io standard)
+  - `docs/` và `examples/` giữ ở root (tài liệu cho owner, không phải agent instruction)
+
+### CLI
+- Rewrite `bin/cli.js`:
+  - `init` → tạo `.agent/skills/`, `docs/`, `examples/` (chỉ file chưa tồn tại)
+  - `install` → overwrite toàn bộ lên version mới
+  - Thêm `update` command (alias cho `install`)
+  - Thêm `--target <path>` flag: đổi thư mục đích cho skills
+  - Thêm `--dry-run` flag: preview file sẽ thay đổi
+  - Output rõ ràng: số file created/overwritten/skipped
+
+### Docs
+- Cập nhật toàn bộ path references: `skills/...` → `.agent/skills/...`
+  - `docs/overview.md`, `docs/fsm.md`, `docs/conventions.md`, `docs/quickstart.md`
+  - `skills/coding/SKILL.md`
+  - `README.md`
+
+### Tests
+- Thêm test tự động cho CLI bằng vitest
+
+---
+
 ## 2026.02.20 — Major Rewrite
 
 ### Triết lý & Kiến trúc

@@ -20,9 +20,9 @@ npx @truongnq-ai/global-skill init
 Lệnh này sẽ **tạo mới** (chỉ tạo nếu chưa tồn tại, không overwrite):
 ```
 your-project/
-├── skills/          ← toàn bộ skill từ global-skill
-├── docs/            ← FSM, conventions, overview
-└── examples/        ← prompt mẫu, use cases
+├── .agent/skills/    ← skills cho AI agent (auto-detected bởi IDE)
+├── docs/             ← documentation cho owner
+└── examples/         ← prompt mẫu cho owner
 ```
 
 ### Cập nhật vào project đã có (overwrite lên version mới nhất)
@@ -32,9 +32,17 @@ cd /path/to/your-project
 npx @truongnq-ai/global-skill install
 ```
 
-Lệnh này sẽ **copy và overwrite** toàn bộ `skills/`, `docs/`, `examples/` từ bản mới nhất trên npm.
+Lệnh này sẽ **copy và overwrite** toàn bộ `.agent/skills/`, `docs/`, `examples/` từ bản mới nhất trên npm.
 
 > ⚠️ **Lưu ý:** `install` sẽ overwrite các file đã có. Nếu anh đã customize skill nào đó trong project → backup trước hoặc dùng `git diff` sau khi chạy.
+
+### Options
+
+```bash
+--target <path>   # Đổi thư mục đích cho skills (mặc định: .agent/skills)
+                  # VD: --target .agents/skills
+--dry-run         # Preview file sẽ thay đổi, không thực thi
+```
 
 ---
 
@@ -83,10 +91,10 @@ npm unlink
 Khi bộ skill đã có trong project, AI agent sẽ tự động nhận biết và áp dụng. Thứ tự đọc khuyến nghị:
 
 ```
-1. skills/clarification/SKILL.md   ← Quy tắc dừng và hỏi A/B/C
-2. skills/file-safety/SKILL.md     ← Quy tắc scope và file write
-3. skills/coding/SKILL.md          ← FSM coding
-4. docs/fsm.md                     ← State machine đầy đủ
+1. .agent/skills/clarification/SKILL.md   ← Quy tắc dừng và hỏi A/B/C
+2. .agent/skills/file-safety/SKILL.md     ← Quy tắc scope và file write
+3. .agent/skills/coding/SKILL.md          ← FSM coding
+4. docs/fsm.md                            ← State machine đầy đủ
 5. (Các skill khác theo context)
 ```
 
@@ -96,13 +104,13 @@ Khi bộ skill đã có trong project, AI agent sẽ tự động nhận biết 
 
 ```bash
 # Copy template
-cp skills/_templates/SKILL.md.template skills/<ten-skill>/SKILL.md
+cp .agent/skills/_templates/SKILL.md.template .agent/skills/<ten-skill>/SKILL.md
 
 # Chỉnh sửa file mới tạo
 # Điền: name, description, mục tiêu, quy trình, ví dụ thực tế
 ```
 
-Xem `skills/_templates/SKILL.md.template` để biết format chuẩn.
+Xem `.agent/skills/_templates/SKILL.md.template` để biết format chuẩn.
 
 ---
 

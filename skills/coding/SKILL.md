@@ -55,13 +55,13 @@ description: "Quy trình coding có kỷ luật theo FSM — phân tích trướ
 - Nếu scope lớn hơn 5 file hoặc không chắc → ưu tiên hỏi clarification trước.
 
 **Bước 4 — Checkpoint mơ hồ**
-- Xem `skills/clarification/SKILL.md` để biết khi nào phải dừng.
+- Xem `.agent/skills/clarification/SKILL.md` để biết khi nào phải dừng.
 - **Auto-Accept mode không miễn trừ bước này.**
 
 **Bước 5 — Khai báo plan**
 - Với task đơn giản (≤2 file, ≤20 dòng thay đổi, không có side-effect): thực thi ngay.
 - Với task phức tạp: liệt kê plan rõ ràng, chờ confirm từ owner.
-- Format khai báo (xem `skills/file-safety/SKILL.md`).
+- Format khai báo (xem `.agent/skills/file-safety/SKILL.md`).
 
 **Bước 6 — Thực thi**
 - Chỉ sửa file đã khai báo trong plan.

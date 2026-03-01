@@ -80,7 +80,7 @@
 **Bắt buộc phải đọc:**
 - Nội dung yêu cầu của owner
 - File/code đang mở (nếu có trong context)
-- Các skill liên quan trong `skills/`
+- Các skill liên quan trong `.agent/skills/`
 
 **Output của state này:**
 > Tóm tắt lại yêu cầu bằng 1-3 câu để xác nhận hiểu đúng.
@@ -282,7 +282,7 @@ Anh cho phép tôi thêm không?
 - Quyết định ảnh hưởng đến architecture hoặc convention chung
 - Naming convention chưa có pattern rõ trong project
 
-**Format output (xem `skills/clarification/SKILL.md` để biết đầy đủ):**
+**Format output (xem `.agent/skills/clarification/SKILL.md` để biết đầy đủ):**
 ```
 ❓ [Tên vấn đề]
 <Mô tả điểm mơ hồ>

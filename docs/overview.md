@@ -15,6 +15,8 @@ Global skill định nghĩa:
 - **Safety rules**: bảo vệ file, dữ liệu, hệ thống
 - **Cross-tool behavior**: browser, git, ssh, docker
 
+> Khi cài vào project, skills sẽ nằm trong `.agent/skills/` — đúng convention AI IDE.
+
 ### Project Skill = Kỹ thuật và Context Cụ Thể
 Mỗi project tạo bộ skill riêng cho:
 - Tech stack (framework, ORM, migration tool...)
@@ -35,6 +37,8 @@ Các project của owner **cho phép Auto-Accept mode** — AI agent có thể t
 - **File Safety** phải được tuân thủ tuyệt đối — không có "minor exception"
 - **Destructive actions** luôn cần confirm rõ ràng trong turn hiện tại
 
+> Xem `.agent/skills/clarification/` và `.agent/skills/file-safety/` cho chi tiết.
+
 ---
 
 ## Quy tắc bất biến (áp dụng mọi skill, mọi project)
@@ -52,26 +56,26 @@ Các project của owner **cho phép Auto-Accept mode** — AI agent có thể t
 
 | Skill | Thư mục | Vai trò |
 |---|---|---|
-| **Clarification** | `skills/clarification/` | Hard blocker — format hỏi A/B/C, trigger conditions |
-| **File Safety** | `skills/file-safety/` | Kiểm soát scope, bảo vệ file ngoài plan |
-| **Coding** | `skills/coding/` | FSM coding, quy tắc ngôn ngữ, commit convention |
-| **Browser** | `skills/browser/` | Tự động hoá trình duyệt an toàn |
-| **Research** | `skills/research/` | Tìm kiếm có nguồn, chọn đúng tool |
-| **GitHub** | `skills/github/` | Branch, PR, review — team workflow |
-| **Ops** | `skills/ops/` | Vận hành hệ thống, incident response |
-| **Docker** | `skills/docker/` | Container management an toàn |
-| **SSH** | `skills/ssh/` | Kết nối, tunnel, file transfer |
+| **Clarification** | `.agent/skills/clarification/` | Hard blocker — format hỏi A/B/C, trigger conditions |
+| **File Safety** | `.agent/skills/file-safety/` | Kiểm soát scope, bảo vệ file ngoài plan |
+| **Coding** | `.agent/skills/coding/` | FSM coding, quy tắc ngôn ngữ, commit convention |
+| **Browser** | `.agent/skills/browser/` | Tự động hoá trình duyệt an toàn |
+| **Research** | `.agent/skills/research/` | Tìm kiếm có nguồn, chọn đúng tool |
+| **GitHub** | `.agent/skills/github/` | Branch, PR, review — team workflow |
+| **Ops** | `.agent/skills/ops/` | Vận hành hệ thống, incident response |
+| **Docker** | `.agent/skills/docker/` | Container management an toàn |
+| **SSH** | `.agent/skills/ssh/` | Kết nối, tunnel, file transfer |
 
 ---
 
 ## Cấu trúc repo
 
 ```
-global-skill/
-├── skills/
-│   ├── _templates/        # Template tạo skill mới
-│   ├── clarification/     # ← Đọc trước tiên
-│   ├── file-safety/       # ← Đọc trước tiên
+your-project/
+├── .agent/skills/                ← AI agent skills (auto-detected bởi IDE)
+│   ├── _templates/               # Template tạo skill mới
+│   ├── clarification/            # ← Đọc trước tiên
+│   ├── file-safety/              # ← Đọc trước tiên
 │   ├── coding/
 │   ├── browser/
 │   ├── research/
@@ -79,12 +83,12 @@ global-skill/
 │   ├── ops/
 │   ├── docker/
 │   └── ssh/
-├── docs/
-│   ├── overview.md        # File này
+├── docs/                         ← Documentation cho owner
+│   ├── overview.md
 │   ├── fsm.md
 │   ├── conventions.md
 │   └── quickstart.md
-└── examples/
+└── examples/                     ← Prompt mẫu cho owner
     ├── prompt_snippets.md
     └── use_cases.md
 ```
