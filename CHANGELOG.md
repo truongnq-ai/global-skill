@@ -7,6 +7,17 @@
   - Đúng convention AI IDE (Antigravity, Gemini Code Assist, agentskills.io standard)
   - `docs/` và `examples/` giữ ở root (tài liệu cho owner, không phải agent instruction)
 
+### Skills mới
+- `skills/error-recovery/` — FSM xử lý lỗi 3 mức (RECOVERABLE, NEEDS INPUT, CRITICAL), retry limits, templates báo lỗi
+
+### Skills nâng cấp
+- Tất cả 10 skills: thêm `depends_on` và `related` vào YAML frontmatter
+- Template `_templates/SKILL.md.template`: thêm dependency fields + error handling section
+
+### Docs mới
+- `docs/skill-routing.md` — Decision tree giúp agent biết cần đọc skill nào cho từng loại task
+- `examples/end-to-end-example.md` — Ví dụ S0→S6 đầy đủ với CLARIFICATION + Error Recovery
+
 ### CLI
 - Rewrite `bin/cli.js`:
   - `init` → tạo `.agent/skills/`, `docs/`, `examples/` (chỉ file chưa tồn tại)

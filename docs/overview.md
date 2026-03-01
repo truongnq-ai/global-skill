@@ -59,6 +59,7 @@ Các project của owner **cho phép Auto-Accept mode** — AI agent có thể t
 | **Clarification** | `.agent/skills/clarification/` | Hard blocker — format hỏi A/B/C, trigger conditions |
 | **File Safety** | `.agent/skills/file-safety/` | Kiểm soát scope, bảo vệ file ngoài plan |
 | **Coding** | `.agent/skills/coding/` | FSM coding, quy tắc ngôn ngữ, commit convention |
+| **Error Recovery** | `.agent/skills/error-recovery/` | Xử lý lỗi giữa chừng — retry, rollback, escalate |
 | **Browser** | `.agent/skills/browser/` | Tự động hoá trình duyệt an toàn |
 | **Research** | `.agent/skills/research/` | Tìm kiếm có nguồn, chọn đúng tool |
 | **GitHub** | `.agent/skills/github/` | Branch, PR, review — team workflow |
@@ -77,6 +78,7 @@ your-project/
 │   ├── clarification/            # ← Đọc trước tiên
 │   ├── file-safety/              # ← Đọc trước tiên
 │   ├── coding/
+│   ├── error-recovery/
 │   ├── browser/
 │   ├── research/
 │   ├── github/
@@ -87,8 +89,10 @@ your-project/
 │   ├── overview.md
 │   ├── fsm.md
 │   ├── conventions.md
-│   └── quickstart.md
+│   ├── quickstart.md
+│   └── skill-routing.md
 └── examples/                     ← Prompt mẫu cho owner
     ├── prompt_snippets.md
-    └── use_cases.md
+    ├── use_cases.md
+    └── end-to-end-example.md
 ```

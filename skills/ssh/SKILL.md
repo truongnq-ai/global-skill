@@ -1,6 +1,8 @@
 ---
 name: ssh
 description: "Kết nối và thao tác qua SSH / SSH tunnel an toàn — không expose port không cần thiết"
+depends_on: [clarification]
+related: [ops, docker]
 ---
 
 # SSH Skill

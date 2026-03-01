@@ -1,6 +1,8 @@
 ---
 name: browser
 description: "Tự động hoá trình duyệt an toàn — chỉ thao tác trong phạm vi đã xác nhận"
+depends_on: [clarification]
+related: [research]
 ---
 
 # Browser Skill

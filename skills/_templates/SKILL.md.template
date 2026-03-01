@@ -1,12 +1,14 @@
 ---
 name: <ten-skill>
 description: "<mô tả ngắn — 1 dòng, rõ mục tiêu>"
+depends_on: []
+related: []
 ---
 
 # <Tên Skill>
 
-> **Áp dụng cho:** <mọi project / project cụ thể>  
-> **Skill liên quan:** `skills/<skill-khac>/` (nếu có)
+> **Áp dụng cho:** <mọi project / project cụ thể>
+> **Skill liên quan:** `.agent/skills/<skill-khac>/` (nếu có)
 
 ## Mục tiêu
 - <mục tiêu 1 — cụ thể, có thể đo lường>
@@ -39,6 +41,15 @@ description: "<mô tả ngắn — 1 dòng, rõ mục tiêu>"
 **Nghiêm cấm:**
 - ❌ <Hành vi không được làm>
 - ❌ <Hành vi không được làm>
+
+---
+
+## Xử lý lỗi
+
+Khi gặp lỗi giữa chừng, tham chiếu `.agent/skills/error-recovery/SKILL.md`:
+- RECOVERABLE: <các lỗi có thể tự retry>
+- NEEDS INPUT: <các lỗi cần hỏi owner>
+- CRITICAL: <các lỗi phải dừng ngay>
 
 ---
 

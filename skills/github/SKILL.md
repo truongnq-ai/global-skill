@@ -1,6 +1,8 @@
 ---
 name: github
 description: "Quy trình làm việc với GitHub trong team: branch, PR, review — không push thẳng lên nhánh bảo vệ"
+depends_on: [clarification, file-safety]
+related: [coding]
 ---
 
 # GitHub Skill

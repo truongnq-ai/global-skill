@@ -1,6 +1,8 @@
 ---
 name: clarification
 description: "Hard blocker khi gặp điểm mơ hồ — DỪNG TOÀN BỘ, không tự quyết định thay owner"
+depends_on: []
+related: [file-safety, coding]
 ---
 
 # Clarification Skill

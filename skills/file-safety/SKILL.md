@@ -1,6 +1,8 @@
 ---
 name: file-safety
 description: "Không tạo/sửa file ngoài scope đã phê duyệt — bảo vệ toàn vẹn codebase"
+depends_on: []
+related: [clarification, coding]
 ---
 
 # File Safety Skill

@@ -1,6 +1,8 @@
 ---
 name: docker
 description: "Quản lý Docker container và Compose an toàn — không xoá volume, không down prod không confirm"
+depends_on: [clarification]
+related: [ops, ssh]
 ---
 
 # Docker Skill

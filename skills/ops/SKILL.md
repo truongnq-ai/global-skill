@@ -1,6 +1,8 @@
 ---
 name: ops
 description: "Vận hành hệ thống: kiểm tra trạng thái, xử lý sự cố — luôn đọc log trước, phân tích rủi ro trước khi thay đổi bất cứ thứ gì"
+depends_on: [clarification]
+related: [docker, ssh, error-recovery]
 ---
 
 # Ops Skill

@@ -1,6 +1,8 @@
 ---
 name: coding
 description: "Quy trình coding có kỷ luật theo FSM — phân tích trước, thực thi sau, không vượt scope"
+depends_on: [clarification, file-safety]
+related: [github, error-recovery]
 ---
 
 # Coding Skill

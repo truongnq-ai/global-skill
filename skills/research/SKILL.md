@@ -1,6 +1,8 @@
 ---
 name: research
 description: "Tìm kiếm và tổng hợp thông tin có nguồn — chọn đúng tool, output chuẩn"
+depends_on: []
+related: [browser]
 ---
 
 # Research Skill
